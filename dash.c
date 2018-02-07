@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "commands.h"
 
 struct op {
   char* name;
@@ -51,7 +52,7 @@ void handleCommand(struct op command, int *running) {
   } else if(startsWith("pid", command.name)) {
     printf("PID unfinished...\n");
   } else if(startsWith("systat", command.name)) {
-    printf("Systat unfinished...\n");
+    systat();
   } else if(startsWith("help", command.name)) {
     printf("There's no helping you...\n");
   } else {
