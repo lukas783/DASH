@@ -47,9 +47,9 @@ void systat() {
     printf("meminfo:\n%s\n", buffer);
     
 
-    char* match;
-    char* infoSubstring;
-    float clock_speed;
+    char* starting;
+    char* ending
+
     /** Open, read, and save to a buffer /proc/uptime for uptime information **/
     file = fopen("/proc/cpuinfo", "r");
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
@@ -59,14 +59,10 @@ void systat() {
         printf("/proc/cpuinfo is too big or nonexistent.\n");
         return;
     }
-    printf("cpuinfo:\n");
-    match = strstr(buffer, "vendor_id");
-    sscanf(match, "%s", &infoSubstring)
-    while(strcmp(infoSubstring, "physical") != 0) {
-        printf("%s ", infoSubstring)
-    }
-    /** Append a null terminator '\0' and output version info **/
-    buffer[bytes_read] = '\0';
+    starting = strstr(buffer, "vendor_id");
+    ending = strstr(buffer, "physical id");
+    buffer[strlen(ending)-strlen(starting)] = '\0'
+    printf("cpuinfo:\n%s", buffer);
 /*
     match = strstr(buffer, "cpu MHz");
     if(match == NULL) {
