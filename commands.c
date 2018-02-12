@@ -3,7 +3,7 @@
 void systat() {
     //printf("Systat unfinished.......\n");
     FILE *file;
-    char buffer[1024];
+    char buffer[4096];
     size_t bytes_read;
 
     /** Open, read, and save to a buffer /proc/version for version information **/
@@ -48,6 +48,7 @@ void systat() {
     
 
     char* match;
+    char* infoSubstring;
     float clock_speed;
     /** Open, read, and save to a buffer /proc/uptime for uptime information **/
     file = fopen("/proc/cpuinfo", "r");
@@ -58,11 +59,14 @@ void systat() {
         printf("/proc/cpuinfo is too big or nonexistent.\n");
         return;
     }
-    match = strstr(buffer, "cache size");
+    printf("cpuinfo:\n");
+    match = strstr(buffer, "vendor_id");
+    sscanf(match, "%s", &infoSubstring)
+    while(strcmp(infoSubstring, "physical") != 0) {
+        printf("%s ", infoSubstring)
+    }
     /** Append a null terminator '\0' and output version info **/
     buffer[bytes_read] = '\0';
-    printf("cpuinfo:\n%s\n", match);
-
 /*
     match = strstr(buffer, "cpu MHz");
     if(match == NULL) {
