@@ -4,5 +4,5 @@
 
 int systat();
 int pid();
-int cmdnm();
+int cmdnm(char* pid);
 int help();

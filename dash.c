@@ -48,7 +48,7 @@ void handleCommand(struct op command, int *running) {
   if(startsWith("exit", command.name)) {
     *running = *running + 1;
   } else if(startsWith("cmdnm", command.name)) {
-    if(cmdnm() != 0) {
+    if(cmdnm(command.args[0]) != 0) {
       printf("There was an error getting process information. Try again later, or restart the program.\n");
     }
   } else if(startsWith("pid", command.name)) {

@@ -68,19 +68,26 @@ int systat() {
     return 0;
 }
 
-int pid() {
-    printf("Get name of pid...\n");
+int cmdnm(char* pid) {
+    printf("get cmdnm of given pid...")
+    FILE *file;
+    char buffer[512]; // i really hope there aren't any program names with a process name longer than 511 chars!
+    char filePath[512] = "/proc/"
+    strncat(filePath, pid, strlen(pid));
+    strncat(filePath, "/comm", 5);
+    printf("path is.. %s\n", filePath)
     return 1;
 }
 
-int cmdnm() {
-    printf("Get pid of running process...\n");
+int pid() {
+    printf("Get all pids of given process...\n");
     char procRoot[7] = "/proc/";
     DIR *dir;
     struct dirent *dirInfo;
     if(dir=opendir(procRoot)) {
         while((dirInfo = readdir(dir)) != NULL) {
-            printf("Name: %s\n", dirInfo->d_name);
+            if(isnumber(dirInfo->d_name))
+                printf("Name: %s\n", dirInfo->d_name);
         }
         closedir(dir);
     } else {
