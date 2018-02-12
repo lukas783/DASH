@@ -69,14 +69,23 @@ int systat() {
 }
 
 int cmdnm(char* pid) {
-    printf("get cmdnm of given pid...")
     FILE *file;
+    size_t bytes_read = 0;
     char buffer[512]; // i really hope there aren't any program names with a process name longer than 511 chars!
-    char filePath[512] = "/proc/"
+    char filePath[512] = "/proc/";
     strncat(filePath, pid, strlen(pid));
+    filePath[strlen(filePath)-1] = '\0';
     strncat(filePath, "/comm", 5);
-    printf("path is.. %s\n", filePath)
-    return 1;
+    file = fopen(filePath, "r");
+    bytes_read = fread(buffer, 1, sizeof(buffer), file);
+    fclose(file);
+    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+      printf("Process ID %s does not exist or can not be read.\n", pid);
+      return 1;
+    }
+    buffer[bytes_read] = '\0';
+    printf("%s", buffer);
+    return 0;
 }
 
 int pid() {
