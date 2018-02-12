@@ -47,9 +47,10 @@ void systat() {
     printf("meminfo:\n%s\n", buffer);
     
 
+    /** We will need a substring for vendor_id to end of buffer
+        and a substring for physical id to end of buffer **/ 
     char* starting;
-    char* ending
-
+    char* ending;
     /** Open, read, and save to a buffer /proc/uptime for uptime information **/
     file = fopen("/proc/cpuinfo", "r");
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
@@ -59,17 +60,10 @@ void systat() {
         printf("/proc/cpuinfo is too big or nonexistent.\n");
         return;
     }
+    /** substring out vendor_id to end of buffer and physical id to end of buffer**/
     starting = strstr(buffer, "vendor_id");
     ending = strstr(buffer, "physical id");
-    buffer[strlen(ending)-strlen(starting)] = '\0'
-    printf("cpuinfo:\n%s", buffer);
-/*
-    match = strstr(buffer, "cpu MHz");
-    if(match == NULL) {
-        printf("/proc/cpuinfo is missing string 'cpu Mhz'\n");
-        return;
-    }
-    sscanf(match, "cpu MHz :  %f", &clock_speed);
-    printf("Clock speed is... %f\n", clock_speed);
-*/
+    /** Subtract the two sizes and add a null terminator, then output **/
+    starting[strlen(starting)-strlen(ending)] = '\0';
+    printf("cpuinfo:\n%s", starting);
 }
