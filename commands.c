@@ -75,7 +75,19 @@ int pid() {
 
 int cmdnm() {
     printf("Get pid of running process...\n");
-    return 1;
+    char procRoot[7] = "/proc/";
+    DIR *dir;
+    struct dirent *dirInfo;
+    if(dir=opendir(procRoot)) {
+        while((dirInfo = readdir(dir)) != NULL) {
+            printf("Name: %s\n", dirInfo->d_name);
+        }
+        closedir(dir);
+    } else {
+        printf("Unable to open /proc/ directory.\n");
+        return 1;
+    }
+    return 0;
 }
 
 int help() {
