@@ -83,10 +83,14 @@ int pid() {
     printf("Get all pids of given process...\n");
     char procRoot[7] = "/proc/";
     DIR *dir;
+    long pid;
+    char *next;
     struct dirent *dirInfo;
+
     if(dir=opendir(procRoot)) {
         while((dirInfo = readdir(dir)) != NULL) {
-            if(isnumber(dirInfo->d_name))
+            pid=strtol(dirInfo->d_name, &next, 10);
+            if((next != dirInfo->d_name) && (*next != '\0'))
                 printf("Name: %s\n", dirInfo->d_name);
         }
         closedir(dir);
