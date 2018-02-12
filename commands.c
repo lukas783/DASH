@@ -1,7 +1,6 @@
 #include "commands.h"
 
-void systat() {
-    //printf("Systat unfinished.......\n");
+int systat() {
     FILE *file;
     char buffer[4096];
     size_t bytes_read;
@@ -13,7 +12,7 @@ void systat() {
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
     if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/version is too big or nonexistent.\n");
-        return;
+        return 1;
     }
     /** Append a null terminator '\0' and output version info **/
     buffer[bytes_read] = '\0';
@@ -27,7 +26,7 @@ void systat() {
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
     if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/uptime is too big or nonexistent.\n");
-        return;
+        return 2;
     }
     /** Append a null terminator '\0' and output version info **/
     buffer[bytes_read] = '\0';
@@ -40,7 +39,7 @@ void systat() {
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
     if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/meminfo is too big or nonexistent.\n");
-        return;
+        return 3;
     }
     /** Append a null terminator '\0' and output version info **/
     buffer[bytes_read] = '\0';
@@ -58,7 +57,7 @@ void systat() {
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
     if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/cpuinfo is too big or nonexistent.\n");
-        return;
+        return 4;
     }
     /** substring out vendor_id to end of buffer and physical id to end of buffer**/
     starting = strstr(buffer, "vendor_id");
@@ -66,4 +65,20 @@ void systat() {
     /** Subtract the two sizes and add a null terminator, then output **/
     starting[strlen(starting)-strlen(ending)] = '\0';
     printf("cpuinfo:\n%s", starting);
+    return 0;
+}
+
+int pid() {
+    printf("Get name of pid...\n");
+    return 1;
+}
+
+int cmdnm() {
+    printf("Get pid of running process...\n");
+    return 1;
+}
+
+int help() {
+    printf("There's no help for you....\n");
+    return 1;
 }

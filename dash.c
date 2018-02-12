@@ -48,13 +48,21 @@ void handleCommand(struct op command, int *running) {
   if(startsWith("exit", command.name)) {
     *running = *running + 1;
   } else if(startsWith("cmdnm", command.name)) {
-    printf("Command name unfinished...\n");
+    if(cmdnm() != 0) {
+      printf("There was an error getting process information. Try again later, or restart the program.\n");
+    }
   } else if(startsWith("pid", command.name)) {
-    printf("PID unfinished...\n");
+    if(pid() != 0) {
+      printf("There was an error getting process information. Try again later, or restart the program.\n");
+    }
   } else if(startsWith("systat", command.name)) {
-    systat();
+    if(systat() != 0) {
+      printf("There was an error getting system information. Try again later, or restart the program.\n");
+    }
   } else if(startsWith("help", command.name)) {
-    printf("There's no helping you...\n");
+    if(help() != 0) {
+      printf("There was an error getting help information. Try again later, or restart the program.\n");
+    }
   } else {
     printf("Unknown command name. For a list of commands and their usage, type help.\n");
   }
