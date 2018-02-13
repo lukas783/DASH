@@ -89,7 +89,7 @@ int cmdnm(char* pid) {
 }
 
 int pid(char* cmdnm) {
-    printf("Get all pids of given process...\n");
+  //    printf("Get all pids of given process...\n");
     char procRoot[7] = "/proc/";
     DIR *dir;
     long pid;
@@ -102,15 +102,18 @@ int pid(char* cmdnm) {
     if(dir=opendir(procRoot)) {
         while((dirInfo = readdir(dir)) != NULL) {
             pid=strtol(dirInfo->d_name, &next, 10);
-            if((next != dirInfo->d_name) && (*next != '\0'))
+            if((next != dirInfo->d_name)) {
                 char filePath[256] = "/proc/";
                 strncat(filePath, dirInfo->d_name, strlen(dirInfo->d_name));
-                filePath[strlen(filePath)-1] = '\0';
                 strncat(filePath, "/comm", 5);
-                file = fopen(filePath);
+                file = fopen(filePath, "r");
                 bytes_read = fread(buffer, 1, sizeof(buffer), file);
                 fclose(file);
-                printf("%s: %s", filePath, buffer);
+		buffer[bytes_read] = '\0';
+		if(strcmp(buffer, cmdnm) == 0) {
+		  printf("%s\n", dirInfo->d_name);
+		}
+	    }
         }
         closedir(dir);
     } else {
