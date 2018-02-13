@@ -4,6 +4,6 @@
 #include <dirent.h>
 
 int systat();
-int pid();
+int pid(char* cmdnm);
 int cmdnm(char* pid);
 int help();

@@ -52,7 +52,7 @@ void handleCommand(struct op command, int *running) {
       printf("There was an error getting process information. Try again later, or restart the program.\n");
     }
   } else if(startsWith("pid", command.name)) {
-    if(pid() != 0) {
+    if(pid(command.args[0]) != 0) {
       printf("There was an error getting process information. Try again later, or restart the program.\n");
     }
   } else if(startsWith("systat", command.name)) {

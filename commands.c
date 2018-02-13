@@ -88,19 +88,29 @@ int cmdnm(char* pid) {
     return 0;
 }
 
-int pid() {
+int pid(char* cmdnm) {
     printf("Get all pids of given process...\n");
     char procRoot[7] = "/proc/";
     DIR *dir;
     long pid;
     char *next;
     struct dirent *dirInfo;
+    FILE *file;
+    char buffer[512];
+    size_t bytes_read;
 
     if(dir=opendir(procRoot)) {
         while((dirInfo = readdir(dir)) != NULL) {
             pid=strtol(dirInfo->d_name, &next, 10);
             if((next != dirInfo->d_name) && (*next != '\0'))
-                printf("Name: %s\n", dirInfo->d_name);
+                char filePath[256] = "/proc/";
+                strncat(filePath, dirInfo->d_name, strlen(dirInfo->d_name));
+                filePath[strlen(filePath)-1] = '\0';
+                strncat(filePath, "/comm", 5);
+                file = fopen(filePath);
+                bytes_read = fread(buffer, 1, sizeof(buffer), file);
+                fclose(file);
+                printf("%s: %s", filePath, buffer);
         }
         closedir(dir);
     } else {
