@@ -73,14 +73,18 @@ int cmdnm(char* pid) {
     size_t bytes_read = 0;
     char buffer[512]; // i really hope there aren't any program names with a process name longer than 511 chars!
     char filePath[512] = "/proc/";
+    if(pid[strlen(pid)-1] == '\n') {
+      pid[strlen(pid)-1] = '\0';
+    }
     strncat(filePath, pid, strlen(pid));
-    filePath[strlen(filePath)-1] = '\0';
     strncat(filePath, "/comm", 5);
     file = fopen(filePath, "r");
-    bytes_read = fread(buffer, 1, sizeof(buffer), file);
-    fclose(file);
+    if(file != NULL) {
+      bytes_read = fread(buffer, 1, sizeof(buffer), file);
+      fclose(file);
+    }
     if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
-      printf("Process ID %s does not exist or can not be read.\n", pid);
+      printf("Process ID for '%s' does not exist or can not be read.\n", pid);
       return 1;
     }
     buffer[bytes_read] = '\0';
@@ -107,8 +111,10 @@ int pid(char* cmdnm) {
                 strncat(filePath, dirInfo->d_name, strlen(dirInfo->d_name));
                 strncat(filePath, "/comm", 5);
                 file = fopen(filePath, "r");
+		if(file != NULL) {
                 bytes_read = fread(buffer, 1, sizeof(buffer), file);
                 fclose(file);
+		}
 		buffer[bytes_read] = '\0';
 		if(strcmp(buffer, cmdnm) == 0) {
 		  printf("%s\n", dirInfo->d_name);
