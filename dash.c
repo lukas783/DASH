@@ -57,9 +57,11 @@ int startsWith(const char *s1, const char*s2);
  * - a return code of 0
 **/
 int main(int argc, char*argv[]) {
-  char inbuffer[256] = "";
-  int running = 0;
-  struct op command;
+  char inbuffer[256] = ""; // A buffer for reading in input line 
+  int running = 0;         // A boolean for finding if exit has been called
+  struct op command;       // a command structure for handling commands
+  
+  /** Loop through prompt, get input, and handle command till exit is called **/
   while(running == 0) {
     printf("dash> ");
     fgets(inbuffer, 250, stdin);
@@ -80,19 +82,23 @@ int main(int argc, char*argv[]) {
  * Outputs: op command - a command structure containing a parsed command.
 **/
 struct op handleInput(char* instr) {
-  char* tokens[10];
-  const char delim[2] = " ";
-  char* token;
-  struct op command;
+  //  char* tokens[10];         //
+  const char delim[2] = " ";// a delimeter string indicating we split on spaces
+  char* token;              // a tokenized string variable
+  struct op command;        // a command structure for organizing commands
+  int i = 0;                // an integer for seeing how many arguments the command has
+  
+  /** Tokenize our first item and declare the command name **/
   token = strtok(instr, delim);
   command.name = token;
-  int i = 0;
+  /** Loop through each subsequent token (up to 10) adding as a command argument **/
   for(i = 0; i < 10; i++) {
     command.args[i] = strtok(NULL, delim);
     if(command.args[i] == NULL)
       break;
   }
 
+  /** Add the length of the input command arguments to our structure and return it**/
   command.argLength = i;
   return command;
 }
@@ -112,39 +118,24 @@ struct op handleInput(char* instr) {
 **/
 void handleCommand(struct op command, int *running) {
   //TODO : REMOVE STARTS WITH, REPLACE WITH A PROPER COMPARE
-  if(startsWith("exit", command.name)) {
+  if(command.name[strlen(command.name)-1] == '\n') {
+    command.name[strlen(command.name)-1] = '\0';
+  }
+  if(strcmp("exit", command.name) == 0) {
     *running = *running + 1;
-  } else if(startsWith("cmdnm", command.name)) {
+  } else if(strcmp("cmdnm", command.name) == 0) {
     if(cmdnm(command.args[0]) != 0) {
-      printf("There was an error getting process information. Try again later, or restart the program.\n");
     }
-  } else if(startsWith("pid", command.name)) {
+  } else if(strcmp("pid", command.name) == 0) {
     if(pid(command.args[0]) != 0) {
-      printf("There was an error getting process information. Try again later, or restart the program.\n");
     }
-  } else if(startsWith("systat", command.name)) {
+  } else if(strcmp("systat", command.name) == 0) {
     if(systat() != 0) {
-      printf("There was an error getting system information. Try again later, or restart the program.\n");
     }
-  } else if(startsWith("help", command.name)) {
+  } else if(strcmp("help", command.name) == 0) {
     if(help() != 0) {
-      printf("There was an error getting help information. Try again later, or restart the program.\n");
     }
   } else {
     printf("Unknown command name. For a list of commands and their usage, type help.\n");
   }
-}
-
-/** 
- * int startsWith(const char*, const char*)
- * - A helper function that compares if string 2 matches string 1
- * - up to strlen(s1) characters. This is useful for when scanf picks
- * - up the newline character and the same command becomes two different
- * - commands in the eyes of strcmp.
- * Arguments: const char* s1 - a prefix string
- *            const char* s2 - a string to compare to s1
- * Returns - 1 if s2 starts with s1, and 0 otherwise
-**/
-int startsWith(const char *s1, const char*s2) {
-  return strncmp(s1, s2, strlen(s1)) == 0;
 }

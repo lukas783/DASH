@@ -26,16 +26,18 @@
  *          4 on failed to open /proc/cpuinfo
 **/
 int systat() {
-    FILE *file;
-    char buffer[4096];
-    size_t bytes_read;
+    FILE *file;        // A file pointer 
+    char buffer[4096]; // A buffer to hold read data from the file pointer
+    size_t bytes_read; // A indicator for number of bytes read
+    char* starting;    // A substring for holding cpuinfo from vendor_id on down
+    char* ending;      // A substring for holding cpuinfo from physical id on down
 
     /** Open, read, and save to a buffer /proc/version for version information **/
     file = fopen("/proc/version", "r");
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
     fclose(file);
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
-    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+    if(file == NULL || bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/version is too big or nonexistent.\n");
         return 1;
     }
@@ -49,7 +51,7 @@ int systat() {
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
     fclose(file);
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
-    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+    if(file == NULL || bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/uptime is too big or nonexistent.\n");
         return 2;
     }
@@ -57,12 +59,12 @@ int systat() {
     buffer[bytes_read] = '\0';
     printf("uptime:\n%s\n", buffer);
 
-    /** Open, read, and save to a buffer /proc/uptime for uptime information **/
+    /** Open, read, and save to a buffer /proc/meminfo for memory information **/
     file = fopen("/proc/meminfo", "r");
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
     fclose(file);
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
-    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+    if(file == NULL || bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/meminfo is too big or nonexistent.\n");
         return 3;
     }
@@ -73,14 +75,12 @@ int systat() {
 
     /** We will need a substring for vendor_id to end of buffer
         and a substring for physical id to end of buffer **/ 
-    char* starting;
-    char* ending;
-    /** Open, read, and save to a buffer /proc/uptime for uptime information **/
+    /** Open, read, and save to a buffer /proc/cpuinfo for cpu information **/
     file = fopen("/proc/cpuinfo", "r");
     bytes_read = fread(buffer, 1, sizeof(buffer), file);
     fclose(file);
     /** If file is empty or file exceeds buffer size, error out and exit.. **/
-    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+    if(file == NULL || bytes_read == 0 || bytes_read == sizeof(buffer)) {
         printf("/proc/cpuinfo is too big or nonexistent.\n");
         return 4;
     }
@@ -107,26 +107,38 @@ int systat() {
  *                  error message
  *          0 if Succesful
  *          1 if unable to open /proc/[char* pid]/comm
+ *          2 if input string is NULL
 **/
 int cmdnm(char* pid) {
-    FILE *file;
-    size_t bytes_read = 0;
-    char buffer[512]; // i really hope there aren't any program names with a process name longer than 511 chars!
-    char filePath[512] = "/proc/";
+    FILE *file;                   // a file pointer for reading a file
+    size_t bytes_read = 0;        // an int indicating how many bytes were read from file
+    char buffer[512];             // a buffer to hold the read data from file
+    char filePath[512] = "/proc/";// a filePath to open once appended
+
+    /** If input string is null, exit before we break anything **/
+    if(pid == NULL) {
+      printf("Process ID '' does not match any running process names.\n");
+      return 2;
+    }
+    /** If our input string ends with a \n, replace with a \0 **/
     if(pid[strlen(pid)-1] == '\n') {
       pid[strlen(pid)-1] = '\0';
     }
+
+    /** Append our input string and /comm to our filePath variable **/
     strncat(filePath, pid, strlen(pid));
     strncat(filePath, "/comm", 5);
+
+    /** Open our filePath and attempt to read into buffer the contents if we can **/
     file = fopen(filePath, "r");
-    if(file != NULL) {
-      bytes_read = fread(buffer, 1, sizeof(buffer), file);
-      fclose(file);
-    }
-    if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
-      printf("Process ID for '%s' does not exist or can not be read.\n", pid);
+    if(file == NULL) {
+      printf("Process ID '%s' does not match any running process names.\n", pid);
       return 1;
     }
+    bytes_read = fread(buffer, 1, sizeof(buffer), file);
+    fclose(file);
+
+    /** Replace the end of buffer with a null terminator and output the contents **/
     buffer[bytes_read] = '\0';
     printf("%s", buffer);
     return 0;
@@ -148,35 +160,57 @@ int cmdnm(char* pid) {
  *          1 if the /proc/ directory could not be opened
 **/
 int pid(char* cmdnm) {
-  //    printf("Get all pids of given process...\n");
-    char procRoot[7] = "/proc/";
-    DIR *dir;
-    long pid;
-    char *next;
-    struct dirent *dirInfo;
-    FILE *file;
-    char buffer[512];
-    size_t bytes_read;
+    /** If our input is null, exit before we break anything..  **/
+    if(cmdnm == NULL) {
+      printf("Process name '' does not match any running process IDs.\n");
+      return 0;
+    }
+    DIR *dir;                  // a directory pointer
+    long pid;                  // a long for converting filepath to long
+    char *next;                // a string to verify the filepath is only an integer
+    struct dirent *dirInfo;    // a default info for directory contents
+    FILE *file;                // a file pointer
+    char buffer[512];          // a buffer to read a file into
+    size_t bytes_read;         // the read number of bytes of our file pointer
+    int found = 0;             // a counter for whether we found any valid pids
 
-    if(dir=opendir(procRoot)) {
+    /** If our input string ends with a \n, replace it with a \0 **/
+    if(cmdnm[strlen(cmdnm)-1] == '\n') {
+      cmdnm[strlen(cmdnm)-1] = '\0';
+    }
+
+    /** Open the directory, if we cant print an error and return 1 **/
+    if(dir=opendir("/proc/")) {
+        /** Loop through all contents of the directory **/
         while((dirInfo = readdir(dir)) != NULL) {
-            pid=strtol(dirInfo->d_name, &next, 10);
+	    /** Convert the directory name to a long **/
+	    pid = strtol(dirInfo->d_name, &next, 10);
+	    /** If the subdirectory is a valid long, search the directory, otherwise dont **/
             if((next != dirInfo->d_name)) {
+	        /** Create a filepath to /proc/PID/comm **/
                 char filePath[256] = "/proc/";
                 strncat(filePath, dirInfo->d_name, strlen(dirInfo->d_name));
                 strncat(filePath, "/comm", 5);
+
+		/** Open and read the comm file into buffer if it exists.**/
                 file = fopen(filePath, "r");
 		if(file != NULL) {
                 bytes_read = fread(buffer, 1, sizeof(buffer), file);
                 fclose(file);
 		}
-		buffer[bytes_read] = '\0';
+		/** Replace the end character with \0 and compare process name to given string **/
+		buffer[bytes_read-1] = '\0';
 		if(strcmp(buffer, cmdnm) == 0) {
+		  found += 1;
 		  printf("%s\n", dirInfo->d_name);
 		}
 	    }
         }
         closedir(dir);
+	/** If no matching process names were found, output a message to let them know **/
+	if(found == 0) {
+	  printf("Process name '%s' does not match any running process IDs.\n", cmdnm);
+	}
     } else {
         printf("Unable to open /proc/ directory.\n");
         return 1;
@@ -193,6 +227,22 @@ int pid(char* cmdnm) {
  *          0 if succesful
 **/
 int help() {
-    printf("There's no help for you....\n");
-    return 1;
+    printf("\n");
+    /** Output help for cmdnm() **/
+    printf("cmndm [process_id]\n -Outputs the process name for a given process ID.\n \
+[process_id] - replace with a valid process name.\n - Any subsequent arguments given will be ignored.\n\n");
+
+    /** Output help for pid() **/
+    printf("pid [process_name]\n -Infoo!!!\n\n");
+
+    /** Output help for systat() **/
+    printf("systat \n -INFOO!!!!\n\n");
+
+    /** Output help for help() **/
+    printf("help\n - Displays this prompt and outputs information about valid commands.\n \
+- Any sebsequent arguments will be ignored.\n\n");
+    
+    /** Indicate that exit leaves the shell **/
+    printf("exit\n - Exits the diagnostics shell program.\n - Any subsequent arguments will be ignored.\n\n");
+    return 0;
 }
