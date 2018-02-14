@@ -1,5 +1,30 @@
+/********************************************************************
+ * commands.c
+ * - A file of helper functions to handle given commands
+*********************************************************************/
 #include "commands.h"
 
+/**
+ * int systat()
+ * - systat attempts to open and output information from four files
+ * - in the linux system. All four files are located in /proc/ and
+ * - include the entire version file, the entire uptime file, the entire
+ * - meminfo fie and a portion of the cpuinfo file. Each file opens
+ * - their respective file with a FILE pointer, reads it to a buffer of
+ * - 4,096 bytes and closes the file immediately, if the file was unreadable
+ * - or empty an error message is displayed, otherwise a null terminator is 
+ * - appended and the contents are output to stdout. In the case of cpuinfo,
+ * - strstr is used to get the contents from vendor_id on down, and then the
+ * - contents from physical_id on down, the difference in size is found and
+ * - a null terminator is put at that position in the vendor_id substring to
+ * - output only information between the two areas of text.
+ * Inputs: None
+ * Ouptuts: 0 on Success
+ *          1 on failed to open /proc/version
+ *          2 on failed to open /proc/uptime
+ *          3 on failed to open /proc/meminfo
+ *          4 on failed to open /proc/cpuinfo
+**/
 int systat() {
     FILE *file;
     char buffer[4096];
@@ -68,6 +93,21 @@ int systat() {
     return 0;
 }
 
+/**
+ * int cmdnm(char* pid)
+ * - cmdnm takes in a process id as a string, the process id is appended
+ * - to a '/proc/' prefix and a '/comm' postfix is attached as well. This
+ * - new string should lead to a process name as long as the given process
+ * - id is valid, if the file can't be opened, the process isn't valid and
+ * - an error message is displayed and returned out. If the process exists,
+ * - the contents of that process ID's comm folder are read in through a buffer
+ * - and displayed out.
+ * Inputs: char* pid - a process ID given for searching for a matching process name
+ * Outputs: stdout: If the given pid is valid, a process name, otherwise an 
+ *                  error message
+ *          0 if Succesful
+ *          1 if unable to open /proc/[char* pid]/comm
+**/
 int cmdnm(char* pid) {
     FILE *file;
     size_t bytes_read = 0;
@@ -92,6 +132,21 @@ int cmdnm(char* pid) {
     return 0;
 }
 
+/**
+ * int pid(char* cmdnm)
+ * - pid takes in a process name as a string, traverses to the /proc/ folder
+ * - and attempts to open it. If the /proc/ folder can be opened, the current
+ * - directories include all active processes and each folder with a number
+ * - is considered a valid process. The function then tries to open that folder's
+ * - comm file and match the input string to the contents of the comm file.
+ * - If the process name matches the given string that process ID is printed out
+ * - otherwise the file is closed. The function searches through the entire directory
+ * - until there are no more processes to check, then closes the directory and exits.
+ * Inputs: char* cmdnm - A process name to match to active pids
+ * Outputs: stdout: any match of process name to pid outputs that pid
+ *          0 if successful
+ *          1 if the /proc/ directory could not be opened
+**/
 int pid(char* cmdnm) {
   //    printf("Get all pids of given process...\n");
     char procRoot[7] = "/proc/";
@@ -129,6 +184,14 @@ int pid(char* cmdnm) {
     return 0;
 }
 
+/**
+ * int help()
+ * - help prints out a list of valid commands, their usages, and a small
+ * - description for each command to stdout.
+ * Inputs: None
+ * Outputs: stdout: information about valid commands
+ *          0 if succesful
+**/
 int help() {
     printf("There's no help for you....\n");
     return 1;
