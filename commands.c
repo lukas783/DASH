@@ -229,11 +229,12 @@ int pid(char* cmdnm) {
 int help() {
     printf("\n");
     /** Output help for cmdnm() **/
-    printf("cmndm [process_id]\n -Outputs the process name for a given process ID.\n \
-[process_id] - replace with a valid process name.\n - Any subsequent arguments given will be ignored.\n\n");
+    printf("cmndm [process_id]\n - Outputs the process name for a given process ID.\n \
+[process_id] - REQUIRED: replace with a valid process id.\n - Any subsequent arguments given will be ignored.\n\n");
 
     /** Output help for pid() **/
-    printf("pid [process_name]\n -Infoo!!!\n\n");
+    printf("pid [process_name]\n - Outputs any process ID who's process name matches the given [process_name] input string.\n \
+[process_name] - REQUIRED: replace with a valid process name.\n - Any subsequent arguments given will be ignored.\n\n");
 
     /** Output help for systat() **/
     printf("systat \n -INFOO!!!!\n\n");
