@@ -1,6 +1,11 @@
 /********************************************************************
  * commands.c
  * - A file of helper functions to handle given commands
+ * 
+ * NOTE: The file reading portions of these subfunctions use some methods
+ *       for reading and checking for errors that came from a code listing
+ *       from "Advanced Linux Programming" by CodeSourcery LLC
+ *       See their COPYRIGHT for more information.
 *********************************************************************/
 #include "commands.h"
 
@@ -237,7 +242,8 @@ int help() {
 [process_name] - REQUIRED: replace with a valid process name.\n - Any subsequent arguments given will be ignored.\n\n");
 
     /** Output help for systat() **/
-    printf("systat \n -INFOO!!!!\n\n");
+    printf("systat \n - Prints out the Linux version, the uptime of the system, the system memory info, and information about the cpu.\n \
+- Any supplied arguments will be ignored.\n\n");
 
     /** Output help for help() **/
     printf("help\n - Displays this prompt and outputs information about valid commands.\n \
