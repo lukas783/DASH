@@ -136,6 +136,23 @@ void handleCommand(struct op command, int *running) {
     if(help() != 0) {
     }
   } else {
-    printf("Unknown command name. For a list of commands and their usage, type help.\n");
+    printf("Defaulting to execute unknown command.\n\n");
+    int childpid = 0;
+    char *args[100];
+    args[0] = command.name;
+    for(int i = 1; i < command.argLength; i++) {
+      printf("Copying over command arg %d - %s", i, command.args[i]);
+      args[i] = command.args[i-1];
+    }
+    childpid = fork();
+    printf("Child forked with pid %d", childpid);
+    if(childpid == 0) {
+      //execvp(command.name, );
+      exit(5);
+    }
+    int waitpid;
+    int status;
+    waitpid = wait(&status);
+    //printf("Unknown command name. For a list of commands and their usage, type help.\n");
   }
 }
