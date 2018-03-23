@@ -85,11 +85,15 @@ int main(int argc, char*argv[]) {
  * Outputs: op command - a command structure containing a parsed command.
 **/
 struct op handleInput(char* instr) {
-  //  char* tokens[10];         //
+  //  char* tokens[10];
+  const char delimendl[2] = "\n";
   const char delim[2] = " ";// a delimeter string indicating we split on spaces
   char* token;              // a tokenized string variable
   struct op command;        // a command structure for organizing commands
   int i = 0;                // an integer for seeing how many arguments the command has
+
+  /** Remove stray newlines.. **/
+  instr = strtok(instr, delimendl);
   
   /** Tokenize our first item and declare the command name **/
   token = strtok(instr, delim);
@@ -97,8 +101,10 @@ struct op handleInput(char* instr) {
   /** Loop through each subsequent token (up to 10) adding as a command argument **/
   for(i = 0; i < 10; i++) {
     command.args[i] = strtok(NULL, delim);
-    if(command.args[i] == NULL)
-      break;
+    if(command.args[i] != NULL)
+       printf("strlen for arg %d - %lu \n", i, strlen(command.args[i]));
+    //if(command.args[i] == NULL)
+    //  break;
   }
 
   /** Add the length of the input command arguments to our structure and return it**/
@@ -148,14 +154,18 @@ void handleCommand(struct op command, int *running) {
       args[i] = command.args[i-1];
       i++;
     }
-    args[i+1] = NULL;
+    args[i] = NULL;
+    i = 0;
+    while(args[i] != NULL) {
+      printf("Arg[%d] - %s\n", i, args[i]);
+      i++;
+    }
     childpid = fork();
     if(childpid != 0) {
       printf("Child forked with pid %d\n", childpid);
     } else {
-      printf("Arg 0: %s, arg 1: %s\n", args[0], args[1]);
       execvp(args[0], args);
-      perror("something went wrong\n");
+      perror("!!!! Something went wrong !!!!\n");
       exit(5);
     }
     int waitpid;
