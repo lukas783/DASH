@@ -29,6 +29,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "commands.h"
 
 /**
@@ -140,14 +143,19 @@ void handleCommand(struct op command, int *running) {
     int childpid = 0;
     char *args[100];
     args[0] = command.name;
-    for(int i = 1; i < command.argLength; i++) {
-      printf("Copying over command arg %d - %s", i, command.args[i]);
+    int i = 1;
+    while(command.args[i-1] != NULL) {
       args[i] = command.args[i-1];
+      i++;
     }
+    args[i+1] = NULL;
     childpid = fork();
-    printf("Child forked with pid %d", childpid);
-    if(childpid == 0) {
-      //execvp(command.name, );
+    if(childpid != 0) {
+      printf("Child forked with pid %d\n", childpid);
+    } else {
+      printf("Arg 0: %s, arg 1: %s\n", args[0], args[1]);
+      execvp(args[0], args);
+      perror("something went wrong\n");
       exit(5);
     }
     int waitpid;
