@@ -223,6 +223,14 @@ int pid(char* cmdnm) {
     return 0;
 }
 
+int cd(char *path) {
+  chdir(path);
+  return 0;
+}
+
+
+
+
 /**
  * int help()
  * - help prints out a list of valid commands, their usages, and a small

@@ -6,9 +6,11 @@
 #include <stdlib.h>
 #include <string.h> 
 #include <dirent.h>
+#include <unistd.h>
 
 /** Function Prototypes **/
 int systat();
 int pid(char* cmdnm);
 int cmdnm(char* pid);
+int cd(char* path);
 int help();

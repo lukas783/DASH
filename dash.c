@@ -44,6 +44,8 @@ struct op {
   char* name;
   int argLength;
   char* args[10];
+  int piped;
+  int pipelocs[10];
 };
 
 /** Function Prototypes for dash.c **/
@@ -69,7 +71,60 @@ int main(int argc, char*argv[]) {
     printf("dash> ");
     fgets(inbuffer, 250, stdin);
     command = handleInput(inbuffer);
-    handleCommand(command, &running);
+    if(command.piped > 1) {
+      printf("Sorry, I can't handle more than one pipe at the moment.\n");
+    }
+    if(command.piped == 1) {
+      int p[2];
+      int pid1;
+      int pid2;
+      int i;
+      struct op cmd1;
+      struct op cmd2;
+      cmd1.name = command.name;
+      for(i = 0; i < command.pipelocs[0]; i++) {
+	cmd1.args[i] = command.args[i];
+      }
+      cmd1.args[i] = NULL;
+      cmd1.argLength = i;
+      cmd2.name = command.args[i+1];
+      int j = 0;
+      for(i = i + 2; command.args[i] != NULL; i++) {
+	cmd2.args[j++] = command.args[i];
+      }
+      cmd2.args[j] = NULL;
+
+      if(pipe(p) == -1) {
+	printf("Unable to pipe commands.\n");
+        continue;
+      }
+      
+      pid1 = fork();
+      if(pid1 == 0) {
+	close(STDOUT_FILENO);
+	dup(p[1]); // replaces stdout with pipe write
+	close(p[0]); // closes pipe read
+	close(p[1]);
+	handleCommand(cmd1, &running);
+	exit(0);
+      }
+      pid2 = fork();
+      if(pid2 == 0) {
+	close(STDIN_FILENO);
+	dup(p[0]);//replaces stdin with pipe read
+	close(p[1]); //closes pipe write
+	close(p[0]);
+	handleCommand(cmd2, &running);
+	exit(0);
+      }
+      close(p[0]);
+      close(p[1]);
+      wait(0);
+      wait(0);
+      printf("The child process id numbers are %d and %d\n", pid1, pid2);
+    } else {
+      handleCommand(command, &running);
+    }
   }
   return 0;
 }
@@ -85,13 +140,12 @@ int main(int argc, char*argv[]) {
  * Outputs: op command - a command structure containing a parsed command.
 **/
 struct op handleInput(char* instr) {
-  //  char* tokens[10];
   const char delimendl[2] = "\n";
   const char delim[2] = " ";// a delimeter string indicating we split on spaces
   char* token;              // a tokenized string variable
   struct op command;        // a command structure for organizing commands
   int i = 0;                // an integer for seeing how many arguments the command has
-
+  int curPipe = 0;
   /** Remove stray newlines.. **/
   instr = strtok(instr, delimendl);
   
@@ -101,12 +155,13 @@ struct op handleInput(char* instr) {
   /** Loop through each subsequent token (up to 10) adding as a command argument **/
   for(i = 0; i < 10; i++) {
     command.args[i] = strtok(NULL, delim);
-    if(command.args[i] != NULL)
-       printf("strlen for arg %d - %lu \n", i, strlen(command.args[i]));
-    //if(command.args[i] == NULL)
-    //  break;
+    if(command.args[i] != NULL && strcmp("|", command.args[i]) == 0) {
+      command.pipelocs[curPipe] = i;
+      curPipe++;
+    }
   }
 
+  command.piped = curPipe;
   /** Add the length of the input command arguments to our structure and return it**/
   command.argLength = i;
   return command;
@@ -126,10 +181,20 @@ struct op handleInput(char* instr) {
  * Outputs: None
 **/
 void handleCommand(struct op command, int *running) {
-  //TODO : REMOVE STARTS WITH, REPLACE WITH A PROPER COMPARE
+  /*printf("cmdname: %s\n", command.name);
+  int i = 0;
+  while(command.args[i] != NULL) {
+    printf("cmdarg[%d] - %s\n", i, command.args[i]);
+    i++;
+  }*/
+  if(command.name == NULL) 
+    return;
+  
   if(command.name[strlen(command.name)-1] == '\n') {
     command.name[strlen(command.name)-1] = '\0';
   }
+  
+  
   if(strcmp("exit", command.name) == 0) {
     *running = *running + 1;
   } else if(strcmp("cmdnm", command.name) == 0) {
@@ -141,36 +206,37 @@ void handleCommand(struct op command, int *running) {
   } else if(strcmp("systat", command.name) == 0) {
     if(systat() != 0) {
     }
+  } else if(strcmp("cd", command.name) == 0) {
+    if(cd(command.args[0]) != 0) {
+    }
   } else if(strcmp("help", command.name) == 0) {
     if(help() != 0) {
     }
   } else {
-    printf("Defaulting to execute unknown command.\n\n");
+    
     int childpid = 0;
     char *args[100];
     args[0] = command.name;
     int i = 1;
+    
     while(command.args[i-1] != NULL) {
       args[i] = command.args[i-1];
       i++;
     }
+
     args[i] = NULL;
     i = 0;
-    while(args[i] != NULL) {
-      printf("Arg[%d] - %s\n", i, args[i]);
-      i++;
-    }
+    
     childpid = fork();
     if(childpid != 0) {
-      printf("Child forked with pid %d\n", childpid);
+      //printf("Child forked with pid %d\n", childpid);
     } else {
       execvp(args[0], args);
-      perror("!!!! Something went wrong !!!!\n");
+      //perror("!!!! Something went wrong !!!!\n");
       exit(5);
     }
     int waitpid;
     int status;
     waitpid = wait(&status);
-    //printf("Unknown command name. For a list of commands and their usage, type help.\n");
   }
 }
