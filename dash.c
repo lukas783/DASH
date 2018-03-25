@@ -74,13 +74,17 @@ int main(int argc, char*argv[]) {
     printf("dash> ");
     fgets(inbuffer, 250, stdin);
     command = handleInput(inbuffer);
-    if(command.name != NULL && strcmp("exit", command.name) == 0) 
-      exit(0);
-    
+    /** If the given command name is exit, we will just exit before anything else **/
+    //if(command.name != NULL && strcmp("exit", command.name) == 0) 
+    //  exit(0);
+
+    /** If we have more than 1 pipe in our input, we will let them know we cant handle it **/
     if(command.piped > 1) {
       printf("Sorry, I can't handle more than one pipe at the moment.\n");
     }
-    if(command.name != NULL) {
+    if(command.name != NULL &&
+       strcmp("exit", command.name) != 0 &&
+       strcmp("cd", command.name) != 0) {
       cmdProc = fork();
       if(cmdProc != 0) {
 	printf("Process PID: %d\n\n", cmdProc);
@@ -146,6 +150,8 @@ int main(int argc, char*argv[]) {
 	exit(0); // i think this goes here?
       }
       wait(0);
+    } else {
+      handleCommand(command, &running);
     }
   }
   return 0;
@@ -258,6 +264,9 @@ void handleCommand(struct op command, int *running) {
     } else if(strcmp("cd", command.name) == 0) {
       if(cd(command.args[0]) != 0) {
       }
+    } else if(strcmp("signal", command.name) == 0) {
+      if(sig(command.args) != 0) {
+      }
     } else if(strcmp("help", command.name) == 0) {
       if(help() != 0) {
       }
@@ -280,6 +289,7 @@ void handleCommand(struct op command, int *running) {
       if(childpid != 0) {
       } else {
 	execvp(args[0], args);
+	printf("You've entered an invalid UNIX command.\n");
 	exit(5);
       }
       int waitpid;

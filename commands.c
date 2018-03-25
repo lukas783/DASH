@@ -224,10 +224,51 @@ int pid(char* cmdnm) {
 }
 
 int cd(char *path) {
-  chdir(path);
-  return 0;
+  if(chdir(path) == 0) {
+    return 0;
+  }
+  perror("Unable to change directories ");
+  return -1;
 }
 
+
+int sig(char **args) {
+  /*
+  int cid = fork();
+  if(cid == 0) {
+    if(args[2] != NULL) {
+      printf("Too many arguments given for the signal command, type 'help' for \
+              a list of valid commands and their usage.\n");
+      exit(1);
+    }
+    
+     args[3] = args[1];
+    args[2] = args[0];
+    args[1] = "n";
+    args[0] = "kill";
+    printf("args are finished!\n");
+    execl("kill", "kill", "-n","3", "8566", (char*)NULL);
+    perror("something went wrong! ");
+    exit(5);
+  } else {
+    wait(0);
+  }
+  */
+  int arg0, arg1;
+  if(toInt(args[0], &arg0) == -1) {
+    printf("Invalid signal value, signal value must be numeric.\n");
+  }
+  if(toInt(args[1], &arg1) == -1) {
+    printf("Invalid pid value, pid value must be numeric.\n");
+  }
+  
+  if(kill(arg1, arg0) == 0) {
+    return 0;
+  }
+  perror("Unable to send signal to process ");
+  
+  return -1;
+}
 
 
 
@@ -260,4 +301,17 @@ int help() {
     /** Indicate that exit leaves the shell **/
     printf("exit\n - Exits the diagnostics shell program.\n - Any subsequent arguments will be ignored.\n\n");
     return 0;
+}
+
+int toInt(char* str, int *val) {
+  int len = strlen(str);
+  int sum = 0;
+  for(int i = 0; i < len; i++) {
+    if(str[i] < 48 || str[i] > 57) 
+      return -1;
+    sum *= 10;
+    sum += str[i] - '0';
+  }
+  *val = sum;
+  return 0;
 }
