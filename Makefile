@@ -10,7 +10,7 @@ all: dash
 %.o: %.c
 	$(COMPILER) $(C_FLAGS) -c -o $@ $<
 
-dash: dash.o commands.o
+dash: dash.o commands.o signalHandle.o
 	$(COMPILER) -o $@ $^
 
 clean:

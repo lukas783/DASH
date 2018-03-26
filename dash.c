@@ -26,6 +26,7 @@
  *
  ********************************************************************/
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,6 +37,7 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include "commands.h"
+#include "signalHandle.h"
 
 /**
  * struct op
@@ -69,6 +71,12 @@ int main(int argc, char*argv[]) {
   int running = 0;         // A boolean for finding if exit has been called
   struct op command;       // a command structure for handling commands
   int cmdProc;
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = handle_signal;
+  for(int i = 0; i < 30; i++) {
+    sigaction(i, &sa, 0);
+  }
   /** Loop through prompt, get input, and handle command till exit is called **/
   while(running == 0) {
     printf("dash> ");
