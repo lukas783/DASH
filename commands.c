@@ -223,50 +223,54 @@ int pid(char* cmdnm) {
     return 0;
 }
 
+/**
+ * int cd(char *path)
+ * - cd is a function that runs the chdir function to change the working
+ * - directory given a valid path. If the given path is invalid, chdir will
+ * - fail and perror will output a message explaining why.
+ * Inputs: char *path - the relative or absolute path to change to
+ * Outputs: 0 if successful directory change
+ *          -1 if the directory could not switch
+**/
 int cd(char *path) {
+  /** Try to chdir to path**/
   if(chdir(path) == 0) {
     return 0;
   }
+  /** If chdir couldn't complete, give a message as to why **/
   perror("Unable to change directories ");
   return -1;
 }
 
-
+/**
+ * int sig(char **args)
+ * - sig handles sending a signal number to a specific process. The signal
+ * - number is passed as the first argument and the pid to send it to is 
+ * - given as the second argument. The function validates the two arguments
+ * - and then runs the kill function to send the signal if it can. If any
+ * - issues come up a -1 is returned out, else a 0 is returned.
+ * Inputs: char **args - a list of command arguments
+ * Outputs: 0 if successful
+ *          -1 if the input is invalid or kill could not run
+**/
 int sig(char **args) {
-  /*
-  int cid = fork();
-  if(cid == 0) {
-    if(args[2] != NULL) {
-      printf("Too many arguments given for the signal command, type 'help' for \
-              a list of valid commands and their usage.\n");
-      exit(1);
-    }
-    
-     args[3] = args[1];
-    args[2] = args[0];
-    args[1] = "n";
-    args[0] = "kill";
-    printf("args are finished!\n");
-    execl("kill", "kill", "-n","3", "8566", (char*)NULL);
-    perror("something went wrong! ");
-    exit(5);
-  } else {
-    wait(0);
-  }
-  */
+  /** Create two int variables and convert our command arguments to ints**/
   int arg0, arg1;
   if(toInt(args[0], &arg0) == -1) {
     printf("Invalid signal value, signal value must be numeric.\n");
+    return -1;
   }
   if(toInt(args[1], &arg1) == -1) {
     printf("Invalid pid value, pid value must be numeric.\n");
+    return -1;
   }
   
+  /** Take our freshly converted integers and run the kill function to send a signal **/
   if(kill(arg1, arg0) == 0) {
     return 0;
   }
+  /** If the kill function failed, perror out and return a -1 **/
   perror("Unable to send signal to process ");
-  
   return -1;
 }
 
@@ -303,6 +307,17 @@ int help() {
     return 0;
 }
 
+/**
+ * int toInt(char* str, int *val)
+ * - toInt converts a given input string from a c string to an integer, 
+ * - given the input string contains a valid integer and only a valid integer.
+ * - The output is given through a pass by reference argument and the validity
+ * - of the input string is given by the function's return statement.
+ * Inputs: None
+ * Outputs: *val - a pass by reference integer containing a converted int
+ *          0 if the string is valid
+ *          -1 if the string contains an invalid character (non-integer)
+**/
 int toInt(char* str, int *val) {
   int len = strlen(str);
   int sum = 0;

@@ -29,6 +29,12 @@
  * $ ./dash
  * 
  * Bugs: 
+ * 
+ * NOTE: The piping, redirects, signal handling, and any subfunctions 
+ *       pertaining to them contain modified code used from "Advanced 
+ *       Linux Programming" by CodeSourcery LLC and "The Open Group Base 
+ *       Specifications" by IEEE and The Open Group; 
+ *       See their COPYRIGHT for more information
  *
  ********************************************************************/
 
