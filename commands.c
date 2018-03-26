@@ -319,14 +319,20 @@ int help() {
  *          -1 if the string contains an invalid character (non-integer)
 **/
 int toInt(char* str, int *val) {
+  /** If we are given a bad input, get out before we SIGSEGV **/
+  if(str == NULL)
+    return -1;
+  /** Get our strings length and create a sum variable **/
   int len = strlen(str);
   int sum = 0;
+  /** Loop through the string, validate the character as a digit, and append as integer to sum **/
   for(int i = 0; i < len; i++) {
     if(str[i] < 48 || str[i] > 57) 
       return -1;
     sum *= 10;
     sum += str[i] - '0';
   }
+  /** Replace our pass-by-reference value with our new integer and return 0 **/
   *val = sum;
   return 0;
 }
