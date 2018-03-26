@@ -1,6 +1,6 @@
 /********************************************************************
  * signalHandle.h
- * - A header file for prototypes and includes for commands.c
+ * - A header file for prototypes and includes for signalHandle.c
 *********************************************************************/
 #include <signal.h>
 #include <stdio.h>
