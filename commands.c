@@ -298,12 +298,26 @@ int help() {
     printf("systat \n - Prints out the Linux version, the uptime of the system, the system memory info, and information about the cpu.\n \
 - Any supplied arguments will be ignored.\n\n");
 
+    /** Output signal help **/
+    printf("signal [signal_number] [process_id]\n - Sends [signal_number] to the given [process_id]. For a list of valid signals, use command\
+     'man -s7 signal'\n - Any extra arguments will be ignored\n\n");
+
+     /** Output CD help **/
+     printf("cd [path]\n - Changes the active working directory, upon completion of the command no output should be seen if the directory change \
+     was successful, there will only be output if the directory could not be changed. \n - [path] can be both a relative path or an absolute path\n \
+     - Any extra arguments will be ignored\n\n");
+
     /** Output help for help() **/
     printf("help\n - Displays this prompt and outputs information about valid commands.\n \
 - Any sebsequent arguments will be ignored.\n\n");
+
     
     /** Indicate that exit leaves the shell **/
     printf("exit\n - Exits the diagnostics shell program.\n - Any subsequent arguments will be ignored.\n\n");
+    
+    /** Output a notice that any program or script in the 'PATH' will be available as well **/
+    printf("Any other command given will search through the PATH environment variable for a valid program/script and execute if possible.\n\n");
+    
     return 0;
 }
 
