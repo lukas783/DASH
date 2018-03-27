@@ -256,13 +256,16 @@ int cd(char *path) {
 int sig(char **args) {
   /** Create two int variables and convert our command arguments to ints**/
   int arg0, arg1;
+  printf("%s!\n", args[0]);
+  printf("%s!!\n", args[1]);
   if(toInt(args[0], &arg0) == -1) {
     printf("Invalid signal value, signal value must be numeric.\n");
-    return -1;
+    exit(5);
   }
   if(toInt(args[1], &arg1) == -1) {
     printf("Invalid pid value, pid value must be numeric.\n");
-    return -1;
+    printf("%s.\n", args[1]);
+    exit(5);
   }
   
   /** Take our freshly converted integers and run the kill function to send a signal **/
@@ -300,7 +303,8 @@ int help() {
 
     /** Output signal help **/
     printf("signal [signal_number] [process_id]\n - Sends [signal_number] to the given [process_id]. For a list of valid signals, use command\
-     'man -s7 signal'\n - Any extra arguments will be ignored\n\n");
+     'man -s7 signal'\n - WARNING: if the signal call is used to send a signal to the self process, undefined behavior will occur. \n   Any signal \
+received by the program lower than signal 17 will terminate the program to avoid this behavior. \n - Any extra arguments will be ignored\n\n");
 
      /** Output CD help **/
      printf("cd [path]\n - Changes the active working directory, upon completion of the command no output should be seen if the directory change \

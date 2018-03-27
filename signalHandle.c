@@ -23,11 +23,9 @@ void handle_signal(int signal) {
     break;
     case 2:
       printf("SIGINT caught, CTRL+C detected, an interrupt from keyboard.\n");
-      exit(5);
     break;
     case 3:
       printf("SIGQUIT caught, Quit from keyboard.\n");
-      exit(5);
     break;
     case 4:
       printf("SIGILL caught, illegal instruction.\n");
@@ -41,13 +39,13 @@ void handle_signal(int signal) {
     break;
     case 8:
       printf("SIGFPE caught, floating point exception.\n");
+      exit(5);
     break;
     case 9:
       printf("SIGKILL caught, kill signal, can't catch!.\n");
     break;
     case 11:
       printf("SIGSEGV caught, invalid memory reference (segmentation fault).\n");
-      exit(5);
     break;
     case 12:
     case 31:
@@ -75,5 +73,8 @@ void handle_signal(int signal) {
     default:
       printf("Signal %d caught! \n", signal);
       break;
+  }
+  if(signal < 17) {
+    exit(5);
   }
 }
