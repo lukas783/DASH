@@ -256,15 +256,12 @@ int cd(char *path) {
 int sig(char **args) {
   /** Create two int variables and convert our command arguments to ints**/
   int arg0, arg1;
-  printf("%s!\n", args[0]);
-  printf("%s!!\n", args[1]);
   if(toInt(args[0], &arg0) == -1) {
     printf("Invalid signal value, signal value must be numeric.\n");
     exit(5);
   }
   if(toInt(args[1], &arg1) == -1) {
     printf("Invalid pid value, pid value must be numeric.\n");
-    printf("%s.\n", args[1]);
     exit(5);
   }
   
