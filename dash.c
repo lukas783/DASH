@@ -68,15 +68,16 @@ struct op {
 /** Function Prototypes for dash.c **/
 struct op handleInput(char* instr);
 void handleCommand(struct op command, int *running);
-int startsWith(const char *s1, const char*s2);
 
 /**
  * int main(int argc, char*argv[])
- * - The program entry point. We declare an input buffer, a running boolean,
- * - and a command structure, we then proceed to loop until running is modified
- * - by prompting the user with 'dash> ' then getting input and processing it
- * - if the command was exit, running is modified and the function exits with
- * - a return code of 0
+ * - This is the entry point and main loop of the program. The main function handles 
+ * - circulating through the dash commands by looping through gathering input, determining 
+ * - if piping is necessary, forking off child processes to send out to handle a given 
+ * - command, and output process information after each command..
+ * Inputs: int argc - the number of cmd line arguments
+ *         char *argv[] - a list of c strings containing command line arguments
+ * Outputs: 0 if A-ok
 **/
 int main(int argc, char*argv[]) {
   char inbuffer[256] = ""; // A buffer for reading in input line 
@@ -235,13 +236,15 @@ struct op handleInput(char* instr) {
 
 /** 
  * void handleCommand(struct op command, int* running)
- * - handleCommand takes in a command structure and the running boolean.
- * - The function begins by comparing the given command name with various
- * - valid commands. If the command name given matches 'exit', running is
- * - modified and the program will exit, otherwise the function attempts
- * - to pass the command and the valid arguments to their helper functions.
- * - If no valid helper function exists, an error message is displayed
- * - prompting the user to type 'help' for a list of valid commands
+ * - handleCommand begins with error checking that a rogue null command or newline character
+ * - doesn’t exist, and either exits out of that command or replaces with a null terminator 
+ * - if a newline exists. First the commands are checked for any redirects and handles swapping
+ * - our input and output file descriptors with the appropriate redirect, then we handle any 
+ * - intrinsic functions. If the given command is not an intrinsic function then we assume it
+ * - is a Linux script we are running and we re-organize the command structure into a single 
+ * - array, fork the process, and run execvp on using the new command arguments. If the command
+ * - still can’t run then the command is considered invalid and we give an error statement. When 
+ * - all is done we redirect our output back to stdin and stdout and leave the function.
  * Inputs: op command - a command structure to identify a given command
  *         int* running - a pointer to an integer to modify the running boolean
  * Outputs: None
