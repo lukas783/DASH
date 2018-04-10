@@ -2,7 +2,7 @@
 COMPILER=gcc
 
 #Choose C Flags
-C_FLAGS=
+C_FLAGS=-std=gnu11
 
 #Set up our make settings
 all: dash
